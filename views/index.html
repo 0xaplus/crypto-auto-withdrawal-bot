@@ -1,46 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bot Activity</title>
-</head>
-<body>
+  </head>
+  <body>
+    <form id="myForm">
+      <p>
+        <b
+          >NOTE: THIS CURRENTLY WORKS FOR ONLY
+          <a href="https://www.alchemy.com/overviews/sepolia-testnet"
+            >sepoliaETH</a
+          ></b
+        >
+      </p>
+      <label for="vwAddress">Vault Wallet Address</label><br />
+      <input type="text" id="vwAddress" name="vwAddress" required /><br /><br />
+
+      <label for="privateKeys"
+        >Source Account Private keys (Accounts the crypto will be withdrawn
+        from):</label
+      ><br />
+      <input
+        type="text"
+        id="privateKeys"
+        name="privateKeys[]"
+        required
+      /><br /><br />
+      <button type="button" onclick="addInput()">Add Input</button><br /><br />
+
+      <button type="button" onclick="startBot()">Start Bot</button>
+    </form>
+    <hr />
+
     <h1>Bot Activity</h1>
     <div id="activityLog"></div>
 
     <script>
-        const activityLog = document.getElementById("activityLog");
+      function addInput() {
+        const privateKeysContainer = document.getElementById(
+          "privateKeysContainer"
+        );
+        const newInput = document.createElement("input");
+        newInput.type = "text";
+        newInput.name = "privateKeys[]";
+        newInput.required = true;
+        privateKeysContainer.appendChild(newInput);
+      }
 
-        // Establish WebSocket connection
-        const ws = new WebSocket("ws://localhost:8080");
+      const activityLog = document.getElementById("activityLog");
 
-        // Handle incoming messages from WebSocket server
-        ws.onmessage = function(event) {
-            const message = JSON.parse(event.data);
-            console.log("ws message:", message)
-            if (message.type === "log") {
-                displayLog(message.message);
-            } else if (message.type === "error") {
-                displayError(message.message);
-            }
-        };
+      const ws = new WebSocket("ws://localhost:8080");
 
-        // Function to display log message
-        function displayLog(message) {
-            const logElement = document.createElement("p");
-            logElement.textContent = message;
-            logElement.style.color = "green"; // Set log message color
-            activityLog.appendChild(logElement);
+      function startBot() {
+        const vwAddress = document.getElementById("vwAddress").value;
+        const privateKeys = Array.from(
+          document.getElementsByName("privateKeys[]")
+        ).map((input) => input.value);
+
+        ws.send(
+          JSON.stringify({
+            type: "startBot",
+            payload: {
+              vwAddress,
+              privateKeys,
+            },
+          })
+        );
+      }
+
+      // Handle incoming messages from WebSocket server
+      ws.onmessage = function (event) {
+        console.log(event);
+        const message = JSON.parse(event.data);
+        console.log("ws message:", message);
+        if (message.type === "log") {
+          displayLog(message.message);
+        } else if (message.type === "error") {
+          displayError(message.message);
         }
+      };
 
-        // Function to display error message
-        function displayError(message) {
-            const errorElement = document.createElement("p");
-            errorElement.textContent = message;
-            errorElement.style.color = "red"; // Set error message color
-            activityLog.appendChild(errorElement);
-        }
+      // Function to display log message
+      function displayLog(message) {
+        const logElement = document.createElement("p");
+        logElement.textContent = message;
+        logElement.style.color = "green"; // Set log message color
+        activityLog.appendChild(logElement);
+      }
+
+      // Function to display error message
+      function displayError(message) {
+        const errorElement = document.createElement("p");
+        errorElement.textContent = message;
+        errorElement.style.color = "red"; // Set error message color
+        activityLog.appendChild(errorElement);
+      }
     </script>
-</body>
+  </body>
 </html>
