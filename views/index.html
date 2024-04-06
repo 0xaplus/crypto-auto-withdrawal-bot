@@ -3,72 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AW Bot</title>
+    <title>Bot Activity</title>
 </head>
 <body>
-    <h1>Auto Withdrawal Bot</h1>
-    <form id="contactForm">
-        <label for="privateKey">Private Key: (For wallet to be withdrawn from)</label><br>
-        <p>Works for only <a href="https://www.alchemy.com/overviews/sepolia-testnet"><b>sepoliaEth</b></a> at the moment</p>
-        <input type="text" id="privateKey" name="privateKey" required><br><br>
-
-        <label for="vwAddress">Vault Wallet Address:</label><br>
-        <input type="text" id="vwAddress" name="vwAddress" required><br><br>
-
-        <button type="submit">Submit</button>
-    </form>
-
-    <div id="result"></div> <!-- Container to display API result -->
+    <h1>Bot Activity</h1>
+    <div id="activityLog"></div>
 
     <script>
-        document.getElementById("contactForm").addEventListener("submit", function(event) {
-            event.preventDefault(); // Prevent the default form submission
+        const activityLog = document.getElementById("activityLog");
 
-            // Get form data
-            const formData = new FormData(event.target);
+        // Establish WebSocket connection
+        const ws = new WebSocket("ws://localhost:8080");
 
-            alert("Form submitted successfully!");
+        // Handle incoming messages from WebSocket server
+        ws.onmessage = function(event) {
+            const message = JSON.parse(event.data);
+            console.log("ws message:", message)
+            if (message.type === "log") {
+                displayLog(message.message);
+            } else if (message.type === "error") {
+                displayError(message.message);
+            }
+        };
 
-            // Convert form data to JSON object
-            const jsonObject = {};
-            formData.forEach((value, key) => {
-                jsonObject[key] = value;
-            });
+        // Function to display log message
+        function displayLog(message) {
+            const logElement = document.createElement("p");
+            logElement.textContent = message;
+            logElement.style.color = "green"; // Set log message color
+            activityLog.appendChild(logElement);
+        }
 
-            // Make API request
-            fetch("/api/run", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(jsonObject)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Display the result in the HTML
-                const resultContainer = document.getElementById("result");
-                resultContainer.innerHTML = '';
-                data.messages.forEach(message => {
-                    setTimeout(() => {
-                        const messageElement = document.createElement('p');
-                        messageElement.textContent = message;
-                        resultContainer.appendChild(messageElement);
-
-                    }, 10000)
-                });
-                // alert("Form submitted successfully!");
-            })
-            .catch(error => {
-                resultContainer.innerHTML = "Failed to fetch from web3 Provider!";
-                console.error("There was a problem with your fetch operation:", error);
-                alert("There was an error submitting the form.");
-            });
-        });
+        // Function to display error message
+        function displayError(message) {
+            const errorElement = document.createElement("p");
+            errorElement.textContent = message;
+            errorElement.style.color = "red"; // Set error message color
+            activityLog.appendChild(errorElement);
+        }
     </script>
 </body>
 </html>
