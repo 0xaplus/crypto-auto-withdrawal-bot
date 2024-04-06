@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Form</title>
+</head>
+<body>
+    <h1>Auto Withdrawal Bot</h1>
+    <form id="contactForm">
+        <label for="privateKey">Private Key: (For wallet to be withdrawn from)</label><br>
+        <p>Works for sepoliaEth at the moment</p>
+        <input type="text" id="privateKey" name="privateKey" required><br><br>
+
+        <label for="vwAddress">Vault Wallet Address:</label><br>
+        <input type="text" id="vwAddress" name="vwAddress" required><br><br>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="result"></div> <!-- Container to display API result -->
+
+    <script>
+        document.getElementById("contactForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Get form data
+            const formData = new FormData(event.target);
+
+            // Convert form data to JSON object
+            const jsonObject = {};
+            formData.forEach((value, key) => {
+                jsonObject[key] = value;
+            });
+
+            // Make API request
+            fetch("/api/run", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(jsonObject)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Display the result in the HTML
+                const resultContainer = document.getElementById("result");
+                resultContainer.innerHTML = '';
+                data.messages.forEach(message => {
+                    const messageElement = document.createElement('p');
+                    messageElement.textContent = message;
+                    resultContainer.appendChild(messageElement);
+                });
+                alert("Form submitted successfully!");
+            })
+            .catch(error => {
+                console.error("There was a problem with your fetch operation:", error);
+                alert("There was an error submitting the form.");
+            });
+        });
+    </script>
+</body>
+</html>
