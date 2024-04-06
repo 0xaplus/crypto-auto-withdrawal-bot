@@ -27,6 +27,8 @@
             // Get form data
             const formData = new FormData(event.target);
 
+            alert("Form submitted successfully!");
+
             // Convert form data to JSON object
             const jsonObject = {};
             formData.forEach((value, key) => {
@@ -52,13 +54,17 @@
                 const resultContainer = document.getElementById("result");
                 resultContainer.innerHTML = '';
                 data.messages.forEach(message => {
-                    const messageElement = document.createElement('p');
-                    messageElement.textContent = message;
-                    resultContainer.appendChild(messageElement);
+                    setTimeout(() => {
+                        const messageElement = document.createElement('p');
+                        messageElement.textContent = message;
+                        resultContainer.appendChild(messageElement);
+
+                    }, 10000)
                 });
-                alert("Form submitted successfully!");
+                // alert("Form submitted successfully!");
             })
             .catch(error => {
+                resultContainer.innerHTML = "Failed to fetch from web3 Provider!";
                 console.error("There was a problem with your fetch operation:", error);
                 alert("There was an error submitting the form.");
             });
