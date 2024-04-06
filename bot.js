@@ -3,7 +3,7 @@ const WebSocket = require("ws");
 require("dotenv").config();
 
 const provider = new ethers.providers.WebSocketProvider(
-  `wss://sepolia.infura.io/ws/v3/${INFURA_ID}`
+  `wss://sepolia.infura.io/ws/v3/${process.env.INFURA_ID}`
 );
 
 const wss = new WebSocket.Server({ port: 8080 });
