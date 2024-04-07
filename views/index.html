@@ -22,12 +22,14 @@
         >Source Account Private keys (Accounts the crypto will be withdrawn
         from):</label
       ><br />
-      <input
-        type="text"
-        id="privateKeys"
-        name="privateKeys[]"
-        required
-      /><br /><br />
+      <div id="privateKeysContainer">
+        <input
+          type="text"
+          id="privateKeys"
+          name="privateKeys[]"
+          required
+        />
+      </div>
       <button type="button" onclick="addInput()">Add Input</button><br /><br />
 
       <button type="button" onclick="startBot()">Start Bot</button>
