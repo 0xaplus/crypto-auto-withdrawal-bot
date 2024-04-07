@@ -74,9 +74,7 @@
 
       // Handle incoming messages from WebSocket server
       ws.onmessage = function (event) {
-        console.log(event);
         const message = JSON.parse(event.data);
-        console.log("ws message:", message);
         if (message.type === "log") {
           displayLog(message.message);
         } else if (message.type === "error") {
@@ -84,7 +82,6 @@
         }
       };
 
-      // Function to display log message
       function displayLog(message) {
         const logElement = document.createElement("p");
         logElement.textContent = message;
@@ -92,7 +89,6 @@
         activityLog.appendChild(logElement);
       }
 
-      // Function to display error message
       function displayError(message) {
         const errorElement = document.createElement("p");
         errorElement.textContent = message;
