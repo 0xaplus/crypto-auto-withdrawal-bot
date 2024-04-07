@@ -1,32 +1,14 @@
 const ethers = require("ethers");
-const WebSocket = require("ws");
+// const WebSocket = require("ws");
 require("dotenv").config();
 
 const provider = new ethers.providers.WebSocketProvider(
   `wss://sepolia.infura.io/ws/v3/${process.env.INFURA_ID}`
 );
 
-const wss = new WebSocket.Server({ port: 8080 });
-wss.on("connection", function connection(ws) {
-  console.log("WebSocket client connected");
+// const wss = new WebSocket.Server({ port: 8080 });
+// const wss = new WebSocket.Server({ port: 8080 });
 
-  function sendMessage(message) {
-    try {
-      ws.send(JSON.stringify(message));
-    } catch (error) {
-      console.error("Error sending message to WebSocket client:", error);
-    }
-  }
-
-  ws.on("message", function incoming(message) {
-    const data = JSON.parse(message);
-    
-    if (data.type === "startBot") {
-      const { vwAddress, privateKeys } = data.payload;
-      bot(vwAddress, privateKeys, sendMessage);
-    }
-  });
-});
 
 const bot = async (vwAddress, privateKeys, sendMessage) => {
   try {

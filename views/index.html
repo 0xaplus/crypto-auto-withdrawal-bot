@@ -51,9 +51,10 @@
 
       const activityLog = document.getElementById("activityLog");
 
-      const ws = new WebSocket("ws://localhost:8080");
+      const ws = new WebSocket("ws://localhost:3000");
 
       function startBot() {
+        alert("Sent data to bot! Starting in few seconds...")
         const vwAddress = document.getElementById("vwAddress").value;
         const privateKeys = Array.from(
           document.getElementsByName("privateKeys[]")
