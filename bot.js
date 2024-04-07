@@ -75,7 +75,7 @@ const bot = async (vwAddress, privateKeys, sendMessage) => {
                 type: "log",
                 message: `Success! transferred ${ethers.utils.formatEther(
                   amount
-                )} ETH`,
+                )} ETH 💹💹💹`,
               });
             } catch (e) {
               console.log(`Error: ${e}`);
