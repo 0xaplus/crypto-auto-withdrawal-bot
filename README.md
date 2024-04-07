@@ -1,7 +1,7 @@
 # HOW IT WORKS
 There is a vault wallet and multiple deposit accounts that will receive the cryptos from senders.
 
-The vault wallet address and the private keys of the deposit accounts are been sent to the server through the client side through a Websocket connection, the server grabs these details and listens for new block on the each of these accounts, new block in this case means a new transaction. As soon as it detects crypto in any of the accounts it moves them automatically to the vault wallet.
+The vault wallet address and the private keys of the deposit accounts are being transmitted from the client-side to the server-side via a WebSocket connection, the server grabs these details and listens for new block on the each of these accounts, new block in this case means a new transaction. As soon as it detects crypto in any of the accounts it moves them automatically to the vault wallet.
 
 # Installation
 
