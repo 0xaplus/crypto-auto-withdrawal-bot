@@ -19,14 +19,11 @@ const bot = async (vwAddress, privateKeys, sendMessage) => {
           const privateKey = privateKeys[i];
           const wallet = new ethers.Wallet(privateKey, provider);
           const balance = await provider.getBalance(wallet.address);
-          console.log("vwAddress", vwAddress);
-          console.log("privateKeys", privateKeys);
           sendMessage({
             type: "log",
             message: `Receiver address: ${vwAddress}`,
           });
-          
-          console.log("Balance:", ethers.utils.formatEther(balance));
+
           sendMessage({
             type: "log",
             message: `Balance: ${ethers.utils.formatEther(balance)}`,
@@ -37,13 +34,10 @@ const bot = async (vwAddress, privateKeys, sendMessage) => {
             to: vwAddress,
             value: balance,
           });
-          console.log(gasLimit);
 
           const totalGasCost = gasLimit.mul(gasPrice);
-          console.log(totalGasCost);
 
           if (balance.sub(totalGasCost) > 0) {
-
             sendMessage({
               type: "log",
               message: "New Account with Eth!",
@@ -51,12 +45,11 @@ const bot = async (vwAddress, privateKeys, sendMessage) => {
             console.log("New Account with Eth!");
 
             const amount = balance.sub(totalGasCost);
-
             try {
               const tx = await wallet.sendTransaction({
                 to: vwAddress,
                 value: amount,
-                chainId: 11155111,
+                chainId: 11155111, // sepolia
                 gasPrice,
                 gasLimit,
               });
