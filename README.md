@@ -1,3 +1,8 @@
+# HOW IT WORKS
+There is a vault wallet and multiple deposit accounts that will receive the cryptos from senders.
+
+The vault wallet address and the private keys of the deposit accounts are being transmitted from the client-side to the server-side via a WebSocket connection, the server grabs these details and listens for new block on the each of these accounts, new block in this case means a new transaction. As soon as it detects crypto in any of the accounts it moves them automatically to the vault wallet.
+
 # Installation
 
 1. Copy the `.env.example` to `.env`, then add the following variables inside it and save the file:
@@ -8,5 +13,6 @@
 
 2. Run either `npm install` or `yarn install`.
 
-3. Run `node index.js` to start the bot.
+3. Run `npm start` to start the app.
+
 # crypto-auto-withdrawal-bot
