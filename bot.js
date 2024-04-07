@@ -1,14 +1,9 @@
 const ethers = require("ethers");
-// const WebSocket = require("ws");
 require("dotenv").config();
 
 const provider = new ethers.providers.WebSocketProvider(
   `wss://sepolia.infura.io/ws/v3/${process.env.INFURA_ID}`
 );
-
-// const wss = new WebSocket.Server({ port: 8080 });
-// const wss = new WebSocket.Server({ port: 8080 });
-
 
 const bot = async (vwAddress, privateKeys, sendMessage) => {
   try {
@@ -78,8 +73,8 @@ const bot = async (vwAddress, privateKeys, sendMessage) => {
                 )} ETH 💹💹💹`,
               });
             } catch (e) {
-              console.log(`Error: ${e}`);
-              sendMessage({ type: "error", message: `Error: ${e}` });
+              console.log(`Error FR: ${e}`);
+              sendMessage({ type: "error", message: `Error FR: ${e}` });
             }
           }
         }
