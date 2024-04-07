@@ -45,6 +45,7 @@ const bot = async (vwAddress, privateKeys, sendMessage) => {
             console.log("New Account with Eth!");
 
             const amount = balance.sub(totalGasCost);
+
             try {
               const tx = await wallet.sendTransaction({
                 to: vwAddress,
@@ -53,6 +54,7 @@ const bot = async (vwAddress, privateKeys, sendMessage) => {
                 gasPrice,
                 gasLimit,
               });
+
 
               await tx.wait();
               console.log(
@@ -66,8 +68,15 @@ const bot = async (vwAddress, privateKeys, sendMessage) => {
                 )} ETH 💹💹💹`,
               });
             } catch (e) {
-              console.log(`Error FR: ${e}`);
-              sendMessage({ type: "error", message: `Error FR: ${e}` });
+              if (e.code === ethers.utils.Logger.errors.INSUFFICIENT_FUNDS) {
+                sendMessage({
+                  type: "error",
+                  message: "Gas price is more than estimated gas limit! Transaction will occur late.",
+                });
+              } else {
+                console.log(`Error FR: ${e}`);
+                sendMessage({ type: "error", message: `${e}` });
+              }
             }
           }
         }
